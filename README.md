@@ -27,3 +27,9 @@ Infraestructura
 - Editar tareas
 - Marcar tareas como completadas
 - Eliminar tareas
+
+## Para iniciarlo
+cd backend
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+.\venv\Scripts\Activate.ps1
+uvicorn app.main:app --reload
