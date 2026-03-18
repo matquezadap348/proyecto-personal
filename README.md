@@ -28,8 +28,12 @@ Infraestructura
 - Marcar tareas como completadas
 - Eliminar tareas
 
-## Para iniciarlo
+## Para ver el backend
 cd backend
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 .\venv\Scripts\Activate.ps1
 uvicorn app.main:app --reload
+
+## Para ver el frontend
+cd frontend
+npm run dev
