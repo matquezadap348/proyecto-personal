@@ -5,12 +5,14 @@ import {
   DndContext, 
   PointerSensor, 
   useSensor, 
-  useSensors 
+  useSensors,
+  closestCorners
 } from '@dnd-kit/core'
 import type { DragEndEvent } from '@dnd-kit/core'
 import toast from 'react-hot-toast'
 import DroppableColumn from '../components/DroppableColumn' 
 import Sidebar from '../components/Sidebar'
+import ConfirmModal from '../components/ConfirmModal'
 import type { Task } from '../components/TaskCard'
 
 export default function Dashboard() {
@@ -21,6 +23,7 @@ export default function Dashboard() {
   const [projectName, setProjectName] = useState('Cargando...')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [newTask, setNewTask] = useState({ title: '', description: '' })
+  const [taskToDelete, setTaskToDelete] = useState<number | null>(null)
   
   const navigate = useNavigate()
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
@@ -93,9 +96,16 @@ export default function Dashboard() {
     }
   }
 
-  const handleDeleteTask = async (e: React.MouseEvent, taskId: number) => {
+  const confirmDeleteTask = (e: React.MouseEvent, taskId: number) => {
     e.stopPropagation()
-    if (!window.confirm("¿Eliminar esta tarea de Vortex?")) return
+    setTaskToDelete(taskId)
+  }
+
+  const handleDeleteTask = async () => {
+    if (!taskToDelete) return
+    const taskId = taskToDelete
+    setTaskToDelete(null)
+    
     try {
       const token = localStorage.getItem('token')
       await axios.delete(`http://localhost:8000/tasks/${taskId}/`, {
@@ -128,9 +138,9 @@ export default function Dashboard() {
         </header>
 
         <div className="flex gap-6 flex-1 overflow-hidden pb-4">
-          <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-            <DroppableColumn status="todo" label="Pendientes" tasks={tasks.filter(t => t.status === 'todo')} handleDelete={handleDeleteTask} />
-            <DroppableColumn status="done" label="Finalizadas" tasks={tasks.filter(t => t.status === 'done')} handleDelete={handleDeleteTask} />
+          <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
+            <DroppableColumn status="todo" label="Pendientes" tasks={tasks.filter(t => t.status === 'todo')} handleDelete={confirmDeleteTask} />
+            <DroppableColumn status="done" label="Finalizadas" tasks={tasks.filter(t => t.status === 'done')} handleDelete={confirmDeleteTask} />
           </DndContext>
         </div>
       </main>
@@ -163,6 +173,14 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      <ConfirmModal 
+        isOpen={taskToDelete !== null}
+        title="¿Eliminar Tarea?"
+        message="Esta acción no se puede deshacer. La tarea será purgada permanentemente del sistema."
+        onConfirm={handleDeleteTask}
+        onCancel={() => setTaskToDelete(null)}
+      />
     </div>
   )
 }

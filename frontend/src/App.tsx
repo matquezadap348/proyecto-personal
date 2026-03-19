@@ -47,7 +47,7 @@ function App() {
           VORTEX
         </h2>
         <p className="text-slate-500 text-center mb-10 text-xs uppercase tracking-widest font-bold">
-          Autenticación de Operador
+          Autenticación de Usuario
         </p>
 
         <form onSubmit={handleLogin} className="space-y-6">

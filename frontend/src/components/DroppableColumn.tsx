@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { useDroppable } from '@dnd-kit/core'
 import TaskCard from './TaskCard'
 import type { Task } from './TaskCard'
@@ -9,7 +10,7 @@ interface DroppableColumnProps {
   handleDelete?: (e: React.MouseEvent, id: number) => void
 }
 
-export default function DroppableColumn({ status, label, tasks, handleDelete }: DroppableColumnProps) {
+const DroppableColumn = memo(function DroppableColumn({ status, label, tasks, handleDelete }: DroppableColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: status,
   })
@@ -39,4 +40,6 @@ export default function DroppableColumn({ status, label, tasks, handleDelete }: 
       </div>
     </div>
   )
-}
+})
+
+export default DroppableColumn

@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 
@@ -14,7 +15,7 @@ interface TaskCardProps {
   handleDelete?: (e: React.MouseEvent, id: number) => void
 }
 
-export default function TaskCard({ task, handleDelete }: TaskCardProps) {
+const TaskCard = memo(function TaskCard({ task, handleDelete }: TaskCardProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: task.id.toString(),
     data: { status: task.status }
@@ -24,6 +25,8 @@ export default function TaskCard({ task, handleDelete }: TaskCardProps) {
     transform: CSS.Translate.toString(transform),
     opacity: isDragging ? 0.6 : 1,
     zIndex: isDragging ? 50 : 1,
+    willChange: isDragging ? 'transform' : 'auto',
+    transition: isDragging ? 'none' : 'transform 200ms ease',
   }
 
   return (
@@ -46,4 +49,6 @@ export default function TaskCard({ task, handleDelete }: TaskCardProps) {
       <p className="text-slate-500 text-sm line-clamp-2">{task.description}</p>
     </div>
   )
-}
+})
+
+export default TaskCard

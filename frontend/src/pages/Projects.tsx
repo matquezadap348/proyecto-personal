@@ -3,6 +3,7 @@ import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import Sidebar from '../components/Sidebar'
+import ConfirmModal from '../components/ConfirmModal'
 
 interface Project {
   id: number
@@ -14,6 +15,7 @@ export default function Projects() {
   const [projects, setProjects] = useState<Project[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [newProject, setNewProject] = useState({ title: '', description: '' })
+  const [projectToDelete, setProjectToDelete] = useState<number | null>(null)
   
   const navigate = useNavigate()
 
@@ -52,8 +54,15 @@ export default function Projects() {
     }
   }
 
-  const handleDeleteProject = async (projectId: number) => {
-    if (!window.confirm("¿Eliminar este proyecto? Las tareas asociadas podrían verse afectadas.")) return
+  const confirmDelete = (projectId: number) => {
+    setProjectToDelete(projectId)
+  }
+
+  const handleDeleteProject = async () => {
+    if (!projectToDelete) return
+    const projectId = projectToDelete
+    setProjectToDelete(null)
+    
     const toastId = toast.loading('Eliminando base de datos...')
     try {
       const token = localStorage.getItem('token')
@@ -104,7 +113,7 @@ export default function Projects() {
               <button 
                 onClick={(e) => {
                   e.stopPropagation()
-                  handleDeleteProject(project.id)
+                  confirmDelete(project.id)
                 }} 
                 className="absolute top-4 right-4 text-slate-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity z-10"
               >
@@ -139,6 +148,14 @@ export default function Projects() {
           </div>
         </div>
       )}
+
+      <ConfirmModal 
+        isOpen={projectToDelete !== null}
+        title="¿Purgar Proyecto?"
+        message="Esta acción es irreversible. Se eliminarán todas las tareas y registros asociados al proyecto."
+        onConfirm={handleDeleteProject}
+        onCancel={() => setProjectToDelete(null)}
+      />
     </div>
   )
 }
