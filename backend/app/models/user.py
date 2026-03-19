@@ -3,7 +3,6 @@ from sqlalchemy.orm import relationship
 
 from app.database.database import Base
 
-
 class User(Base):
     __tablename__ = "users"
 
@@ -13,3 +12,4 @@ class User(Base):
     hashed_password = Column(String)
 
     tasks = relationship("Task", back_populates="owner")
+    projects = relationship("Project", back_populates="owner")

@@ -37,3 +37,12 @@ uvicorn app.main:app --reload
 ## Para ver el frontend
 cd frontend
 npm run dev
+
+## Despliegue con Docker (Recomendado)
+
+Asegúrate de tener Docker y Docker Compose instalados.
+
+1. Clonar el repositorio.
+2. Desde la raíz, ejecutar:
+   ```bash
+   docker compose up -d --build

@@ -13,33 +13,28 @@ export default function Register() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // 1. Validación con Toast de error
     if (password !== confirmPassword) {
       toast.error("Las contraseñas no coinciden")
       return
     }
 
-    // 2. Disparamos el Toast de estado "Cargando" y guardamos su ID
     const loadingToastId = toast.loading("Registrando usuario...")
 
     try {
-      await axios.post('http://localhost:8000/users/', {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      await axios.post(`${apiUrl}/auth/register`, {
         name: name,
         email: email,
         password: password
       })
 
-      // 3. Si hay éxito, el Toast de carga se transforma en Toast de éxito
       toast.success("¡Registro exitoso! Redirigiendo...", { id: loadingToastId })
 
-      // Esperamos 1.5 segundos para que leas el mensaje antes de cambiar de pantalla
       setTimeout(() => {
         navigate('/login')
       }, 1500)
 
     } catch (error: any) {
-      console.error("Error al registrar:", error)
-      // 4. Si hay error, el Toast de carga se transforma en Toast de error
       toast.error("Error: Posible correo duplicado", { id: loadingToastId })
     }
   }

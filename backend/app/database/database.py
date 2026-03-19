@@ -1,5 +1,6 @@
+import time
 import os
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, declarative_base
 from dotenv import load_dotenv
 
@@ -14,8 +15,18 @@ if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
 else:
     engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+def _wait_for_db():
+    for _ in range(10):
+        try:
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+            break
+        except Exception:
+            time.sleep(2)
 
+_wait_for_db()
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 

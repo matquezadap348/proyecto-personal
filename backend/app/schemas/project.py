@@ -1,23 +1,18 @@
 from typing import Optional
 from pydantic import BaseModel, ConfigDict
 
-class TaskCreate(BaseModel):
+class ProjectCreate(BaseModel):
     title: str
     description: Optional[str] = None
-    project_id: Optional[int] = None
 
-class TaskUpdate(BaseModel):
+class ProjectUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
-    completed: Optional[bool] = None
-    project_id: Optional[int] = None
 
-class TaskResponse(BaseModel):
+class ProjectResponse(BaseModel):
     id: int
     title: str
     description: Optional[str] = None
-    completed: bool
     owner_id: int
-    project_id: Optional[int] = None
 
     model_config = ConfigDict(from_attributes=True)

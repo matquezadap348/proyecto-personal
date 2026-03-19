@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -18,8 +18,7 @@ def create_task(
     current_user: User = Depends(get_current_user)
 ):
     new_task = Task(
-        title=task.title,
-        description=task.description,
+        **task.model_dump(),
         owner_id=current_user.id
     )
     
@@ -32,12 +31,17 @@ def create_task(
 
 @router.get("/", response_model=List[TaskResponse])
 def read_tasks(
+    project_id: Optional[int] = None,
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    tasks = db.query(Task).filter(Task.owner_id == current_user.id).offset(skip).limit(limit).all()
+    query = db.query(Task).filter(Task.owner_id == current_user.id)
+    if project_id is not None:
+        query = query.filter(Task.project_id == project_id)
+        
+    tasks = query.offset(skip).limit(limit).all()
     return tasks
 
 
