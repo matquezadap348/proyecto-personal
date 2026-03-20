@@ -24,16 +24,22 @@ export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [newTask, setNewTask] = useState({ title: '', description: '' })
   const [taskToDelete, setTaskToDelete] = useState<number | null>(null)
+  const [isInitialLoading, setIsInitialLoading] = useState(true)
   
   const navigate = useNavigate()
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
   const fetchData = async () => {
     const token = localStorage.getItem('token')
+    
+    if (!token) {
+      setIsInitialLoading(false)
+      return
+    }
+
     if (!projectId) {
-        toast.error("No se especificó un proyecto")
-        navigate('/proyectos')
-        return
+      navigate('/proyectos', { replace: true })
+      return
     }
 
     try {
@@ -51,7 +57,11 @@ export default function Dashboard() {
         status: t.completed ? 'done' : 'todo'
       })))
     } catch (error) {
-      toast.error("Error al sincronizar con Vortex")
+      if (!isInitialLoading) {
+        toast.error("Error al sincronizar con Vortex")
+      }
+    } finally {
+      setIsInitialLoading(false)
     }
   }
 
@@ -82,6 +92,9 @@ export default function Dashboard() {
     const taskId = parseInt(active.id as string)
     const newStatus = over.id as 'todo' | 'done'
     
+    const currentTask = tasks.find(t => t.id === taskId)
+    if (!currentTask || currentTask.status === newStatus) return
+
     setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t))
 
     try {
@@ -90,6 +103,10 @@ export default function Dashboard() {
         { completed: newStatus === 'done' },
         { headers: { Authorization: `Bearer ${token}` } }
       )
+      
+      if (newStatus === 'done' && currentTask.status === 'todo') {
+        toast.success('¡Tarea completada!')
+      }
     } catch (error) {
       toast.error("Error de persistencia")
       fetchData()

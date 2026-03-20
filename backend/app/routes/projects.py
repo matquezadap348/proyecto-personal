@@ -1,10 +1,13 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import func, case
+
 
 from app.database.database import get_db
 from app.models.project import Project
 from app.models.user import User
+from app.models.task import Task
 from app.schemas.project import ProjectCreate, ProjectResponse, ProjectUpdate
 from app.dependencies import get_current_user
 
@@ -20,7 +23,16 @@ def create_project(project: ProjectCreate, db: Session = Depends(get_db), curren
 
 @router.get("/", response_model=List[ProjectResponse])
 def get_projects(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return db.query(Project).filter(Project.owner_id == current_user.id).all()
+    return db.query(
+        Project.id,
+        Project.title,
+        Project.description,
+        Project.owner_id,
+        func.count(Task.id).label("task_count"),
+        func.coalesce(func.sum(case((Task.completed == True, 1), else_=0)), 0).label("completed_task_count")
+    ).outerjoin(Task, Project.id == Task.project_id)\
+     .filter(Project.owner_id == current_user.id)\
+     .group_by(Project.id).all()
 
 @router.get("/{project_id}", response_model=ProjectResponse)
 def get_project(project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):

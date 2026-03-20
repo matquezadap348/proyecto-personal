@@ -9,6 +9,8 @@ interface Project {
   id: number
   title: string
   description: string
+  task_count: number
+  completed_task_count: number
 }
 
 export default function Projects() {
@@ -18,6 +20,12 @@ export default function Projects() {
   const [projectToDelete, setProjectToDelete] = useState<number | null>(null)
   
   const navigate = useNavigate()
+
+  const getProgress = (completed: number, total: number) => {
+    if (total === 0) return 0
+    return Math.round((completed / total) * 100)
+  }
+
 
   const fetchData = async () => {
     const token = localStorage.getItem('token')
@@ -106,7 +114,7 @@ export default function Projects() {
                 localStorage.setItem('lastProjectId', project.id.toString())
                 navigate(`/dashboard?projectId=${project.id}`)
               }}
-              className="bg-slate-900/40 p-6 rounded-2xl border border-slate-800 hover:border-lime-500/50 transition-all group relative overflow-hidden flex flex-col h-48 cursor-pointer"
+              className="bg-slate-900/40 p-6 rounded-2xl border border-slate-800 hover:border-lime-500/50 transition-all group relative overflow-hidden flex flex-col h-56 cursor-pointer"
             >
               <div className="absolute -right-10 -top-10 w-32 h-32 bg-lime-500/5 blur-3xl rounded-full pointer-events-none group-hover:bg-lime-500/10 transition-colors"></div>
               
@@ -121,7 +129,20 @@ export default function Projects() {
               </button>
               
               <h3 className="text-xl font-bold text-white mb-2 truncate group-hover:text-lime-400 transition-colors pr-6">{project.title}</h3>
-              <p className="text-slate-500 text-sm flex-1 overflow-hidden text-ellipsis line-clamp-3">{project.description}</p>
+              <p className="text-slate-500 text-sm flex-1 overflow-hidden text-ellipsis line-clamp-2">{project.description}</p>
+              
+              <div className="mt-3">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-xs text-slate-400 font-medium">{getProgress(project.completed_task_count, project.task_count)}%</span>
+                  <span className="text-xs text-slate-400 font-medium">{project.completed_task_count}/{project.task_count}</span>
+                </div>
+                <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                  <div 
+                    className="bg-lime-500 h-full rounded-full shadow-[0_0_10px_#84cc16] transition-all duration-500" 
+                    style={{ width: `${getProgress(project.completed_task_count, project.task_count)}%` }}
+                  ></div>
+                </div>
+              </div>
               
               <div className="mt-4 pt-4 border-t border-slate-800/50 flex justify-between items-center">
                 <span className="text-[10px] text-lime-500 font-bold uppercase tracking-widest bg-lime-500/10 px-2 py-1 rounded">Activo</span>

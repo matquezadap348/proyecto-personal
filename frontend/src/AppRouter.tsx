@@ -4,11 +4,11 @@ import App from './App'
 import Dashboard from './pages/Dashboard'
 import Register from './pages/Register'
 import Projects from './pages/Projects'
+import ProtectedRoute from './components/ProtectedRoute'
 
 export function AppRouter() {
-  const isAuthenticated = !!localStorage.getItem('token')
-
   return (
+
     <BrowserRouter>
       <Toaster 
         position="bottom-right"
@@ -42,15 +42,23 @@ export function AppRouter() {
         
         <Route 
           path="/dashboard" 
-          element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} 
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } 
         />
         
         <Route 
           path="/proyectos" 
-          element={isAuthenticated ? <Projects /> : <Navigate to="/login" />} 
+          element={
+            <ProtectedRoute>
+              <Projects />
+            </ProtectedRoute>
+          } 
         />
 
-        <Route path="*" element={<Navigate to="/login" />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   )

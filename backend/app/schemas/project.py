@@ -14,5 +14,7 @@ class ProjectResponse(BaseModel):
     title: str
     description: Optional[str] = None
     owner_id: int
+    task_count: int = 0
+    completed_task_count: int = 0
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True)
